@@ -3,22 +3,11 @@ PhonVoc: Phonetic and Phonological vocoding
 
 This is a computational platform for Phonetic and Phonological
 vocoding, released under the BSD licence. See file COPYING for
-details. The functionality is covered by
-- Afsaneh Asaei, Milos Cernak, Hervé Bourlard, Signal processing
-method and apparatus based on structured sparsity of phonological
-features. US Patent Application US2015846036 (14/846,036), Sep. 4,
-2015.
-Some technical details are available in:
-- Milos Cernak, Blaise Potard and Philip N. Garner, Phonological
-Vocoding Using Artificial Neural Networks . In: Proceedings of the
-IEEE Intl. Conference on Acoustics, Speech and Signal Processing
-(ICASSP). Brisbane, Australia, 2015
+details. The software is based on Kaldi and Idiap SSP. For training of
+the analysis and synthesis models, follow please train/README.txt. 
 
-The software is based on Kaldi and Idiap SSP. For training of the
-analysis and synthesis models, follow please train/README.txt.
-
-For analysis and synthesis, pre-trained models are available. First,
-set language and phonology systems, a synthesis voice and re-synthesis
+For analysis and synthesis with the pre-trained models, set first
+language and phonology systems, a synthesis voice and re-synthesis
 vocoder in Config.sh. The following setup is pre-trained:
 
 export lang=English # analysis trained on WSJ corpus
@@ -46,6 +35,16 @@ export vocod=cepgm  # Idiap LPC vocoder with cepgm
 
 - runs both analysis and synthesis of the input audio
 
+More technical details are available in:
+- Milos Cernak, Blaise Potard and Philip N. Garner, Phonological
+Vocoding Using Artificial Neural Networks . In: Proceedings of the
+IEEE Intl. Conference on Acoustics, Speech and Signal Processing
+(ICASSP). Brisbane, Australia, 2015
+The functionality is covered also by
+- Afsaneh Asaei, Milos Cernak, Hervé Bourlard, Signal processing
+method and apparatus based on structured sparsity of phonological
+features. US Patent Application US2015846036 (14/846,036), Sep. 4,
+2015.
 
-
-Milos Cernak, November 2015
+==
+Milos Cernak, December 2015
