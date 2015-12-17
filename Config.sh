@@ -100,4 +100,4 @@ export hdim=1024
 # phonetic        | 0
 # phonological    | 1
 # phonetic+phonol.| 2
-export paramType=1
+export paramType=0
