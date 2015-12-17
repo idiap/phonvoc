@@ -57,28 +57,15 @@ if [[ $paramType -eq 1 || $paramType -eq 2 ]]; then
     done
 fi
 
-# for att in "$forwardDNNs"; do
-#     # att=Voiced
-#     echo "Forward pass of $att"
-#     if [[ $att = "phone" ]]; then
-# 	nnet-forward train/dnns/pretrain-dbn-$lang/final.feature_transform "${feats}" ark:- | \
-# 	nnet-forward train/dnns/${lang}-${phon}/${att}-3l-dnn/final.nnet ark:- ark,scp:$id/phone.ark,$id/phonefeats.scp
-#     else
-# 	nnet-forward train/dnns/pretrain-dbn-$lang/final.feature_transform "${feats}" ark:- | \
-# 	nnet-forward train/dnns/${lang}-${phon}/${att}-3l-dnn/final.nnet ark:- ark:- | \
-# 	select-feats 1 ark:- ark:$id/${att}.ark
-#     fi
-# # exit
-# done
-
 if [[ $paramType -eq 0 ]]; then
     cp $id/phonefeats.scp $id/feats.scp
 else
-    if [[ $phon == "SPE" ]]; then
-	paste-feats ark:$id/sil.ark ark:$id/vocalic.ark ark:$id/consonantal.ark ark:$id/high.ark ark:$id/back.ark ark:$id/low.ark ark:$id/anterior.ark ark:$id/coronal.ark ark:$id/round.ark ark:$id/ris.ark ark:$id/tense.ark ark:$id/voice.ark ark:$id/continuant.ark ark:$id/nasal.ark ark:$id/strident.ark ark,scp:$id/attributes.ark,$id/attfeats.scp
-        cp $id/attfeats.scp $id/feats.scp
-	# rm -f $id/sil.ark $id/vocalic.ark $id/consonantal.ark $id/high.ark $id/back.ark $id/low.ark $id/anterior.ark $id/coronal.ark $id/round.ark $id/ris.ark $id/tense.ark $id/voice.ark $id/continuant.ark $id/nasal.ark $id/strident.ark
-    fi
+    for att in "${(@k)attMap}"; do
+	atts+=( ark:$id/${att}.ark )
+    done
+    paste-feats $atts ark,scp:$id/attributes.ark,$id/attfeats.scp
+    cp $id/attfeats.scp $id/feats.scp
+
     if [[ $paramType -eq 2 ]]; then
 	paste-feats scp:$id/attfeats.scp scp:$id/phonefeats.scp ark,scp:$id/paramType2.ark,$id/feats.scp
     fi

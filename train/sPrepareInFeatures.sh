@@ -19,7 +19,7 @@ source $ll/${phon}-map.sh
 
 geLogDir=log
 artDir=`cd $(dirname $0); pwd`
-echo "Working in $artDir with dnns/${lang}-${phon}-${voice}"
+echo "Working in $artDir with dnns/${lang}-${phon}"
 
 if [[ ! -e $geLogDir ]]; then
   mkdir -p $geLogDir
@@ -52,14 +52,6 @@ if [[ ! -e $ifeatdir ]]; then
   mkdir -p $ifeatdir
 fi
 
-if [[ $paramType -eq 0 ]]; then
-    forwardDNNs="phone"
-elif [[ $paramType -eq 1 ]]; then
-    forwardDNNs="${(@k)attMap}"
-else
-    forwardDNNs="${(@k)attMap} phone"
-fi
-
 echo "-- Forward pass for $data set with param $paramType --"
 if [[ $paramType -eq 0 || $paramType -eq 2 ]]; then
 	mfcc=feats/mfcc_$voice
@@ -70,43 +62,19 @@ if [[ $paramType -eq 0 || $paramType -eq 2 ]]; then
 	    feats="$feats add-deltas --delta-order=2 ark:- ark:- |"
 qsub $geOpts << EOF    
     nnet-forward dnns/pretrain-dbn-$lang/final.feature_transform "${feats}" ark:- | \
-    nnet-forward dnns/${lang}-${phon}/phone-3l-dnn/final.nnet ark:- ark,scp:$id/phone.ark,$id/phonefeats.scp
+    nnet-forward dnns/${lang}-${phon}/phone-3l-dnn/final.nnet ark:- ark,scp:$ifeatdir/phone.ark,$ifeatdir/phonefeats.scp
 EOF
+	done
 fi
 if [[ $paramType -eq 1 || $paramType -eq 2 ]]; then
     for att in "${(@k)attMap}"; do
 qsub $geOpts << EOF    
 	nnet-forward dnns/pretrain-dbn-$lang/final.feature_transform "${feats}" ark:- | \
         nnet-forward dnns/${lang}-${phon}/${att}-3l-dnn/final.nnet ark:- ark:- | \
-        select-feats 1 ark:- ark:$id/${att}.ark
+        select-feats 1 ark:- ark:$ifeatdir/${att}.ark
 EOF
     done
 fi
-
-# for att in $forwardDNNs; do
-#     # att=Voiced
-#     echo "Forward pass of $att"
-#     if [[ $att = "phone" ]]; then
-# 	mfcc=feats/mfcc_$voice
-# 	for n in $(seq $N_JOBS); do
-# 	    feats="ark:copy-feats scp:$mfcc/raw_mfcc_$voice.$n.scp ark:- |"
-# 	    [ ! -r $data/cmvn.scp ] && echo "Missing $data/cmvn.scp" && exit 1;
-# 	    feats="$feats apply-cmvn --norm-vars=false --utt2spk=ark:$data/utt2spk scp:$data/cmvn.scp ark:- ark:- |"
-# 	    feats="$feats add-deltas --delta-order=2 ark:- ark:- |"
-# qsub $geOpts << EOF    
-#     nnet-forward dnns/pretrain-dbn-$lang/final.feature_transform "${feats}" ark:- | \
-#     nnet-forward dnns/${lang}-${phon}/${att}-3l-dnn/final.nnet ark:- ark,scp:$ifeatdir/${att}.$n.ark,$ifeatdir/${att}.$n.scp
-# EOF
-# 	done
-#     else
-# qsub $geOpts << EOF    
-#     nnet-forward dnns/pretrain-dbn-$lang/final.feature_transform "${feats}" ark:- | \
-#     nnet-forward dnns/${lang}-${phon}/${att}-3l-dnn/final.nnet ark:- ark:- | \
-#     select-feats 1 ark:- ark:$ifeatdir/${att}.ark
-# EOF
-#     fi
-# # exit
-# done
 
 while true; do
     sleep 10
@@ -122,28 +90,11 @@ done
 if [[ $paramType -eq 0 ]]; then
     cp $ifeatdir/phonefeats.scp $ifeatdir/feats.scp
 else
-    if [[ $phon == "SPE" ]]; then
-	paste-feats ark:$id/sil.ark ark:$id/vocalic.ark ark:$id/consonantal.ark ark:$id/high.ark ark:$id/back.ark ark:$id/low.ark ark:$id/anterior.ark ark:$id/coronal.ark ark:$id/round.ark ark:$id/ris.ark ark:$id/tense.ark ark:$id/voice.ark ark:$id/continuant.ark ark:$id/nasal.ark ark:$id/strident.ark ark,scp:$id/attributes.ark,$id/attfeats.scp
-        cp $id/attfeats.scp $id/feats.scp
-	rm -f $id/sil.ark $id/vocalic.ark $id/consonantal.ark $id/high.ark $id/back.ark $id/low.ark $id/anterior.ark $id/coronal.ark $id/round.ark $id/ris.ark $id/tense.ark $id/voice.ark $id/continuant.ark $id/nasal.ark $id/strident.ark
-    fi
-    if [[ $paramType -eq 2 ]]; then
-	paste-feats scp:$id/attfeats.scp scp:$id/phonefeats.scp ark,scp:$id/paramType2.ark,$id/feats.scp
-    fi
-fi
+    for att in "${(@k)attMap}"; do
+	atts+=( ark:$ifeatdir/${att}.ark )
+    done
+    paste-feats $atts ark,scp:$ifeatdir/attributes.ark,$ifeatdir/attfeats.scp
 
-
-
-if [[ $paramType -eq 0 ]]; then
-    phone_arks=""
-    for n in $(seq $N_JOBS); do
-	phone_arks="$phone_arks ark:$ifeatdir/${att}.$n.ark"
-	cat $ifeatdir/${att}.$n.scp || exit 1;
-    done > $ifeatdir/feats.scp
-else
-    if [[ $phon == "SPE" ]]; then
-	paste-feats ark:$ifeatdir/sil.ark ark:$ifeatdir/vocalic.ark ark:$ifeatdir/consonantal.ark ark:$ifeatdir/high.ark ark:$ifeatdir/back.ark ark:$ifeatdir/low.ark ark:$ifeatdir/anterior.ark ark:$ifeatdir/coronal.ark ark:$ifeatdir/round.ark ark:$ifeatdir/ris.ark ark:$ifeatdir/tense.ark ark:$ifeatdir/voice.ark ark:$ifeatdir/continuant.ark ark:$ifeatdir/nasal.ark ark:$ifeatdir/strident.ark ark,scp:$ifeatdir/paramType1.ark,$ifeatdir/attfeats.scp
-    fi
     if [[ $paramType -eq 2 ]]; then
 	paste-feats scp:$ifeatdir/attfeats.scp scp:$ifeatdir/phonefeats.scp ark,scp:$ifeatdir/paramType2.ark,$ifeatdir/feats.scp
     fi
