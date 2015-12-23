@@ -63,11 +63,11 @@ else
     for att in "${(@k)attMap}"; do
 	atts+=( ark:$id/${att}.ark )
     done
-    paste-feats $atts ark,scp:$id/attributes.ark,$id/attfeats.scp
-    cp $id/attfeats.scp $id/feats.scp
+    paste-feats $atts ark,scp:$id/paramType1.ark,$id/phnlfeats.scp
+    cp $id/phnlfeats.scp $id/feats.scp
 
     if [[ $paramType -eq 2 ]]; then
-	paste-feats scp:$id/attfeats.scp scp:$id/phonefeats.scp ark,scp:$id/paramType2.ark,$id/feats.scp
+	paste-feats scp:$id/phnlfeats.scp scp:$id/phonefeats.scp ark,scp:$id/paramType2.ark,$id/feats.scp
     fi
 fi
 

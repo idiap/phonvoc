@@ -93,10 +93,11 @@ else
     for att in "${(@k)attMap}"; do
 	atts+=( ark:$ifeatdir/${att}.ark )
     done
-    paste-feats $atts ark,scp:$ifeatdir/attributes.ark,$ifeatdir/attfeats.scp
+    paste-feats $atts ark,scp:$ifeatdir/paramType1.ark,$ifeatdir/phnlfeats.scp
+    cp $ifeatdir/phnlfeats.scp $ifeatdir/feats.scp
 
     if [[ $paramType -eq 2 ]]; then
-	paste-feats scp:$ifeatdir/attfeats.scp scp:$ifeatdir/phonefeats.scp ark,scp:$ifeatdir/paramType2.ark,$ifeatdir/feats.scp
+	paste-feats scp:$ifeatdir/phnlfeats.scp scp:$ifeatdir/phonefeats.scp ark,scp:$ifeatdir/paramType2.ark,$ifeatdir/feats.scp
     fi
 fi
 
