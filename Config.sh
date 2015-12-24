@@ -11,13 +11,11 @@
 software=/idiap/resource/software
 source $software/initfiles/shrc $software
 
-# SETSHELLs
+# SETSHELLs; replace it with your local
+# export KALDI_ROOT=
+# export SSP_ROOT=
 SETSHELL grid
-SETSHELL hts
-SETSHELL sptk
-SETSHELL icsi-speech-tools
 SETSHELL kaldi-gpu
-
 # some speech common libraries
 . /idiap/group/speech/common/lib/profile.sh
 
@@ -29,25 +27,13 @@ then
 installation"
     exit 1
 fi
-# Check for ISS; add it to the path
-export SSP_ROOT=/idiap/user/mcernak/Projects/ssp
+# Check for SSP; add it to the path
 if [ "$SSP_ROOT" = "" ]
 then
     echo
     "Please install https://github.com/idiap/ssp and set \$ISS_ROOT"
     exit 1
 fi
-
-# Kaldi
-# . ./cmd.sh
-# . ./path.sh
-
-# "queue.pl" uses qsub.  The options to it are
-# options to qsub.  If you have GridEngine installed,
-# change this to a queue you have access to.
-# Otherwise, use "run.pl", which will run jobs locally
-# (make sure your --num-jobs options are no more than
-# the number of cpus on your machine.
 
 # IDIAP
 export extract_cmd="queue.pl "
