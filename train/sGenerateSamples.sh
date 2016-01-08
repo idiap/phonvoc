@@ -9,7 +9,7 @@
 source ../Config.sh
 
 # vocod=cepgm-blaise
-dbn=dnns/pretrain-synthesis-dbn-${lang}-${voice}-paramType$paramType
+dbn=dnns/dbn-${lang}-${voice}-${phon}-paramType$paramType
 dnn=dnns/${hlayers}-${hdim}-${lrate}-${lang}-${voice}-${vocod}-paramType$paramType
 
 tst=../lang/$lang/data/$voice/itest
@@ -33,6 +33,21 @@ mkdir -p $htkDir
 #     -e $geLogDir
 #     -o $geLogDir
 # )
+
+if [ 0 ]; then
+    echo "re-synthesis only"
+    otst=enc/${lang}-${phon}-${voice}-$vocod-resynthesis
+    if [[ ! -d $otst ]]; then
+	mkdir $otst
+    fi
+    while read l; do
+	id=`echo $l | awk '{print $1}'`
+	echo $id
+	htk=feats/out-${lang}-${phon}-${voice}-cepgm/$id.htk
+	$SSP_ROOT/codec.py -d -a -l -m 160 -s 'cepgm' $htk $otst/$id.wav
+    done < $tst/feats.scp
+    exit
+fi
 
 if [[ ! -d $otst/lsf ]]; then
   echo "Creating $otst/lsf"
@@ -63,7 +78,7 @@ for f in `find $otst/lsf -name "*.lsf"`; do
   hnr=$htkDir/$f:t:r.hnr
   htk=$htkDir/$f:t:r.htk
   pitch=$htkDir/$f:t:r.f0
-  wav=$htkDir/$f:t:r.16k.wav
+  wav=$htkDir/$f:t:r.wav
   wav8k=$htkDir/$f:t:r.8k.wav
 
   # echo "toHTK.py $f $htk $hnr $pitch"
@@ -87,8 +102,8 @@ for f in `find $otst/lsf -name "*.lsf"`; do
   fi
   # qsub $geOpts -s 'cepgm'
   $SSP_ROOT/codec.py -d -a -l -m 160 -s 'cepgm' $htk $wav
-  sox $wav -r 8k $wav8k
-  rm $htk $hnr $pitch $wav
+  # sox $wav -r 8k $wav8k
+  rm $htk $hnr $pitch
 
   # exit
 done

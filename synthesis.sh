@@ -22,9 +22,9 @@ fi
 if [[ ! -d steps ]]; then ln -sf $KALDI_ROOT/egs/wsj/s5/steps steps; fi
 if [[ ! -d utils ]]; then ln -sf $KALDI_ROOT/egs/wsj/s5/utils utils; fi
 
-ift=train/dnns/pretrain-synthesis-dbn-${lang}-${voice}-paramType$paramType/final.feature_transform
+ift=train/dnns/dbn-${lang}-${phon}-${voice}-paramType$paramType/final.feature_transform
 infeats_tst="ark:nnet-forward $ift scp:$inDir/feats.scp ark:- |"
-dnn=train/dnns/${hlayers}-${hdim}-${lrate}-${lang}-${voice}-${vocod}-paramType$paramType
+dnn=train/dnns/${hlayers}-${hdim}-${lrate}-${lang}-${voice}-${phon}-${vocod}-paramType$paramType
 
 if [ -e $dnn/cmvn_out_glob.ark ]; then
     echo "using $dnn/cmvn_out_glob.ark"
@@ -58,4 +58,4 @@ if [[ $f0Diff -le 0 ]]; then
     done 
 fi
 
-$SSP_ROOT/codec.py -d -a -l -m 160 -s 'cepgm' $inDir/$inDir.htk $inDir/$inDir.$paramType.wav
+$SSP_ROOT/codec.py -d -a -l -m 160 -s 'cepgm' $inDir/$inDir.htk $inDir/$inDir.$phon.$paramType.wav

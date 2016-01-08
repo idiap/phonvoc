@@ -10,6 +10,6 @@ echo Script: $0
 source ../Config.sh
 
 init=../lang/$lang/data/$voice/itrain
-dir=dnns/pretrain-synthesis-dbn-${lang}-${voice}-paramType$paramType
+dir=dnns/dbn-${lang}-${phon}-${voice}-paramType$paramType
 (tail --pid=$$ -F $dir/_pretrain_dbn.log 2>/dev/null)&
 $cuda_cmd $dir/_pretrain_dbn.log steps/nnet/pretrain_dbn.sh --rbm-iter 20 --nn_depth 4 --hid_dim 1024 --config ../conf/spretrain.conf $init $dir || exit 1;

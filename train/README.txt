@@ -58,7 +58,7 @@ $ sPrepareInFeatures.sh
 $ sPrepareOutFeatures.sh
 
 - this will run vocoder analysis of the synthesis training data
-- extracted features are prepared in ../feats/out-$lang-$phon-$voice
+- extracted features are prepared in ../feats/out-$lang-$voice-$vocod
 
 $ sSplitData.sh
 
@@ -70,12 +70,13 @@ $ sSplitData.sh
 $ sPretrainDNN.sh
 
 - initialise DNN training using ../lang/$lang/data/$voice/itrain
-- the output is in ./pretrain-synthesis-dbn-$lang-$voice
+- the output is in ./dbn-$lang-$phon-$voice-paramType$paramType
 
 $ sTrainDNN.sh
 
 - train synthesis DNN
-- the output is in dnns/$hlayers-$hdim-$lrate-$lang-$voice-$vocod 
+- the output is in
+  dnns/$hlayers-$hdim-$lrate-$lang-$phon-$voice-$vocod-paramType$paramType
 
 5. Test the training
 
@@ -85,7 +86,7 @@ $ sGenerateSamples.sh
 - re-synthesize speec with $vocod vocoder
 - encoded speech is in enc/${lang}-${phon}-{$voice}-{vocod}
 
-$ sPESQ.sh
+$ sPESQ.sh/sMCD.sh
 
 - run objective comparison of original and generated samples
 

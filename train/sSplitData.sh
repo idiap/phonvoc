@@ -19,7 +19,7 @@ outTestDir=$data/otest
 outTrainDir=$data/otrain
 
 ifeatdir=feats/in-${lang}-${phon}-${voice}
-ofeatdir=feats/out-${lang}-${phon}-${voice}-$vocod
+ofeatdir=feats/out-${lang}-${voice}-${vocod}
 
 if [[ $voice == "Nancy" ]]; then
     trainSplit=10000

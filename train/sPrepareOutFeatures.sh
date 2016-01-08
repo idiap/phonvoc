@@ -10,7 +10,7 @@
 source ../Config.sh
 
 data=../lang/$lang/data/$voice
-ofeatdir=feats/out-${lang}-${phon}-${voice}-${vocod}
+ofeatdir=feats/out-${lang}-${vocod}-${voice}
 if [[ ! -e $ofeatdir ]]; then
   mkdir -p $ofeatdir
 fi

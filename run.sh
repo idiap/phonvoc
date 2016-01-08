@@ -17,4 +17,4 @@ if [[ ! -r $inAudio ]]; then echo "$inAudio not accessible."; exit 1; fi
 analysis.sh $inAudio
 synthesis.sh $inAudio:t:r
 
-echo "$inAudio:t:r/$inAudio:t:r.$paramType.wav generated."
+echo "$inAudio:t:r/$inAudio:t:r.$phon.$paramType.wav generated."

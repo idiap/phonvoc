@@ -9,8 +9,8 @@
 source ../Config.sh
 
 # with pre-training
-dbn=dnns/pretrain-synthesis-dbn-${lang}-${voice}-paramType$paramType
-dir=dnns/${hlayers}-${hdim}-${lrate}-${lang}-${voice}-${vocod}-paramType$paramType
+dbn=dnns/dbn-${lang}-${phon}-${voice}-paramType$paramType
+dir=dnns/${hlayers}-${hdim}-${lrate}-${lang}-${voice}-${phon}-${vocod}-paramType$paramType
 itrain=../lang/$lang/data/$voice/itrain
 idev=../lang/$lang/data/$voice/idev
 otrain=../lang/$lang/data/$voice/otrain

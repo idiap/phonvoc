@@ -27,40 +27,39 @@ source $ll/${phon}-map.sh
 feature_transform=dnns/pretrain-dbn-$lang/final.feature_transform
 dbn=dnns/pretrain-dbn-$lang/3.dbn
 
-echo "TRAIN (MONO)PHONETIC ANALYSIS"
-phonemes=`echo ${(@k)attRevMap} | sed 's/ /,/g'`
-# mlf2feat.py $trainMLF $adir/phonfeats.txt $phonemes
-# copy-post ark,t:$adir/phonfeats.txt ark:$adir/phonfeats.post
-echo "DNN training"
-dir=dnns/${lang}-${phon}/phone-3l-dnn
-(tail --pid=$$ -F $dir/_train_nnet.log 2>/dev/null)&
-(queue.pl -l gpu $dir/_train_nnet.log \
-      steps/train_nnet.sh --feature-transform $feature_transform \
-      --cmvn-opts "--norm-means=true --norm-vars=false"  \
-      --delta-opts "--delta-order=2" --dbn $dbn \
-      --hid-layers 0 --learn-rate 0.001 \
-      --labels "ark:$adir/phonfeats.post" --num-tgt 40 \
-      $ll/data/train/ $ll/data/dev/ lang-dummy \
-      ali-tr-dummy ali-cv-dummy $dir)& # || exit 1;
+if [[ $paramType -eq 0 || $paramType -eq 2 ]]; then
+    echo "TRAIN (MONO)PHONETIC ANALYSIS"
+    phonemes=`echo ${(@k)attRevMap} | sed 's/ /,/g'`
+    echo "DNN training"
+    dir=dnns/${lang}-${phon}/phone-3l-dnn
+    (tail --pid=$$ -F $dir/_train_nnet.log 2>/dev/null)&
+    (queue.pl -l gpu $dir/_train_nnet.log \
+	      steps/train_nnet.sh --feature-transform $feature_transform \
+	      --cmvn-opts "--norm-means=true --norm-vars=false"  \
+	      --delta-opts "--delta-order=2" --dbn $dbn \
+	      --hid-layers 0 --learn-rate 0.001 \
+	      --labels "ark:$adir/phonfeats.post" --num-tgt 40 \
+	      $ll/data/train/ $ll/data/dev/ lang-dummy \
+	      ali-tr-dummy ali-cv-dummy $dir)& # || exit 1;
+fi
+if [[ $paramType -eq 1 || $paramType -eq 2 ]]; then
+    echo "TRAIN PHONOLOGICAL ANALYSIS"
+    for att in "${(@k)attMap}"; do
+	echo $att: $attMap[$att]
 
-exit
-echo "TRAIN PHONOLOGICAL ANALYSIS"
-for att in "${(@k)attMap}"; do
-    echo $att: $attMap[$att]
-
-    echo "Generating alignment"
-    postAli=$adir/labels-${att}.ark
-    if [[ ! -s $postAli ]]; then
+	echo "Generating alignment"
+	postAli=$adir/labels-${att}.ark
+	# if [[ ! -s $postAli ]]; then
         tmpPost=$adir/post
         mlf2post.py $trainMLF $tmpPost $attMap[$att]         # create posteriors
         cat $tmpPost | sort | copy-post ark,t:- ark:$postAli # convert to ark
         rm -f $tmpPost
-    fi
+	# fi
 
-    echo "DNN training"
-    dir=dnns/${lang}-${phon}/${att}-3l-dnn
-    (tail --pid=$$ -F $dir/_train_nnet.log 2>/dev/null)&
-    (queue.pl -l gpu $dir/_train_nnet.log \
+	echo "DNN training"
+	dir=dnns/${lang}-${phon}/${att}-3l-dnn
+	(tail --pid=$$ -F $dir/_train_nnet.log 2>/dev/null)&
+	(queue.pl -l gpu $dir/_train_nnet.log \
     	      steps/train_nnet.sh --feature-transform $feature_transform \
     	      --cmvn-opts "--norm-means=true --norm-vars=false"  \
     	      --delta-opts "--delta-order=2" --dbn $dbn \
@@ -68,6 +67,6 @@ for att in "${(@k)attMap}"; do
     	      --labels "ark:$postAli" --num-tgt 2 \
     	      $ll/data/train/ $ll/data/dev/ lang-dummy \
     	      ali-tr-dummy ali-cv-dummy $dir)& # || exit 1;
-    	      # --labels "" --num-tgt 2 \
-    # exit
-done
+	# exit
+    done
+fi
