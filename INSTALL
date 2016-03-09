@@ -4,12 +4,11 @@ https://github.com/idiap/ssp
 - and Kaldi project
 https://github.com/kaldi-asr/kaldi
 
-Please install both repositories, and set your local paths in
-Config.sh, lines 15 and 16. Comment out lines 10-12 and 17-20 in
-Config.sh, which are related to Idiap environment.
+Please install both repositories, and set your local paths at the
+beginning of the Config.sh.
 
 Phonvoc is a collection of bash and zsh scripts with pre-trained
 models, no further installation is needed.
 
 --
-Milos Cernak, December 2015
+Milos Cernak, March 2016

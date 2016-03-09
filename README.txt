@@ -10,30 +10,38 @@ For analysis and synthesis with the pre-trained models, set first
 language and phonology systems, a synthesis voice and re-synthesis
 vocoder in Config.sh. The following setup is pre-trained:
 
-export lang=English # analysis trained on WSJ corpus
+export lang=English # analysis trained on the LibriSPeech corpus
 export phon=SPE     # the Sound Patterns of English
-export voice=Nancy  # synthesis trained on Blizzard chall. Nancy
+export voice=Anna   # synthesis trained on a LibriVox voice
 export vocod=cepgm  # Idiap LPC vocoder with cepgm
 
 ======================= ANALYSIS ========================
 
-1. analysis.sh examples/nancy_11001.wav
+1. analysis.sh examples/recording.wav
 
 - this runs MFCC extraction and DNNs forward pass
-- feature posteriors are prepared in nancy_11001/attributes.ark
+- feature posteriors are prepared in recording/feats.scp
 
 ======================= SYNTHESIS  =======================
 
-2. synthesis.sh nancy_11001
+2. synthesis.sh recording
 
 - takes the feature posteriors and re-synthesize speech
 - re-synthesized speech is in  nancy_11001/nancy_11001.wav
 
+======================= EVALUATION  ======================
+
+3. cdist.sh recording
+
+- calculates Mel Cepstral Distortion of the original and
+  re-synthesized recordings
+
 ======================= SPEECH VOCODING  =================
 
-3. run.sh examples/nancy_11001.wav
+4. run.sh examples/recording.wav
 
-- runs both analysis and synthesis of the input audio
+- runs analysis, synthesis and evaluation of the input audio
+
 
 More technical details are available in:
 - Milos Cernak, Blaise Potard and Philip N. Garner, Phonological
@@ -47,4 +55,4 @@ features. US Patent Application US2015846036 (14/846,036), Sep. 4,
 2015.
 
 ==
-Milos Cernak, December 2015
+Milos Cernak, March 2016

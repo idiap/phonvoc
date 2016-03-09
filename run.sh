@@ -10,11 +10,21 @@
 #
 source Config.sh
 
-inAudio=$1
+inFile=$1
+inType=0 # 0 - input is an audio file; 1 - input is list of the audio files
 
-if [[ ! -r $inAudio ]]; then echo "$inAudio not accessible."; exit 1; fi
+if  [[ ! -r $inFile ]]; then
+    echo "$inFile not accessible.";
+    exit 1;
+elif [[ $inFile =~ "\.wav$" ]]; then
+    echo "A single input file mode"
+else
+    echo "A multiple input files (a list) mode"
+    inType=1
+fi
 
-analysis.sh $inAudio
-synthesis.sh $inAudio:t:r
+analysis.sh $inFile $inType
+synthesis.sh $inFile:t:r $inType
+cdist.sh $inFile:t:r
 
-echo "$inAudio:t:r/$inAudio:t:r.$phon.$paramType.wav generated."
+echo "Done."

@@ -10,7 +10,7 @@
 
 typeset -A attMap
 attMap=(
-  # manner
+  manner
   vowel       IY,IH,EH,EY,AE,AA,AW,AY,AH,AO,OY,OW,UH,UW,ER
   fricative   JH,CH,S,SH,Z,ZH,F,TH,V,DH,HH
   nasal       M,N,NG
@@ -74,7 +74,6 @@ attRevMap=(
   AO vowel,back,round,continuant,tense,voiced
   AE vowel,low,continuant,tense,voiced
   AA vowel,low,back,continuant,tense,voiced
-  AX vowel,mid,back,continuant,voiced
   EY vowel,mid,continuant,tense,voiced
   OW vowel,high,mid,back,round,continuant,tense,voiced
   OY vowel,back,round,continuant,voiced

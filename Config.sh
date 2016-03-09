@@ -7,17 +7,25 @@
 #   Milos Cernak, Sept. 2015
 #
 
+# ------- UPDATE THESE PATHS TO FIT YOUR ENVIRONMENT ------ !!!
 # Allow setshell
 software=/idiap/resource/software
 source $software/initfiles/shrc $software
 
 # SETSHELLs; replace it with your local
 # export KALDI_ROOT=
-# export SSP_ROOT=
+export SSP_ROOT=/idiap/user/mcernak/Projects/ssp
+export PESQ_ROOT=/idiap/home/mcernak/local/bin
 SETSHELL grid
 SETSHELL kaldi-gpu
 # some speech common libraries
 . /idiap/group/speech/common/lib/profile.sh
+
+# English training data - update the paths to fit your environment
+export data=/idiap/resource/database/LibriSpeech
+export dataLM=$data/resource
+export voiceData=/idiap/temp/alaza/SIWIS_temp/Databases/LibriVox/English-US/annakarenina_mas_1202_librivox/wav
+# ------- UPDATE THESE PATHS TO FIT YOUR ENVIRONMENT ------ !!!
 
 # Check for KALDI; add it to the path
 if [ "$KALDI_ROOT" = "" ]
@@ -37,7 +45,8 @@ fi
 
 # IDIAP
 export extract_cmd="queue.pl "
-export train_cmd="queue.pl -l q1d,h_vmem=2G"
+export train_cmd="queue.pl -l h_vmem=2G"
+# export train_cmd="queue.pl -l q1d,h_vmem=2G"
 export decode_cmd="queue.pl -l q1d,h_vmem=2G"
 export decode_nnet_cmd="queue.pl -l q1d,h_vmem=2G -v LD_LIBRARY_PATH"
 export decode_big_cmd="queue.pl -l q1d,h_vmem=4G"
@@ -47,11 +56,7 @@ export cuda_cmd="queue.pl -l gpu"
 export PATH=$PWD/utils/:$PWD:$PATH
 export LC_ALL=C
 
-# English training data
-wsj0=/idiap/resource/database/WSJ0
-wsj1=/idiap/resource/database/WSJ1
-
-export N_JOBS=30
+export N_JOBS=60
 
 ################################################################
 ### PHONVOC SETTINGS ###
@@ -63,14 +68,14 @@ export N_JOBS=30
 export phon=SPE
 
 # language  - used training database for phonological analysis
-## English  - WSJ db
+## English  - LibriSpeech db
 ## French   - Ester db
 ## Mandarin - Emime db
 export lang=English
 
 # synthesis voice
-## English - Nancy voice (16.6 hours female voice)
-export voice=Nancy
+## English - Anna voice (~36h LibriVox female voice)
+export voice=Anna
 
 # Re-synthesis vocoder
 ## LPC     - Idiap open source LPC

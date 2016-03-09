@@ -11,9 +11,14 @@
 source Config.sh
 
 inAudio=$1
+inType=$2
+
 if [[ -z $inAudio ]]; then
     echo "PhonVoc analysis: input audio not provided!"
     exit 1;
+fi
+if [[ $inType == "" ]]; then
+    $inType=0
 fi
 
 if [[ ! -d steps ]]; then ln -sf $KALDI_ROOT/egs/wsj/s5/steps steps; fi
@@ -27,13 +32,22 @@ fi
 source lang/$lang/${phon}-map.sh
 
 id=$inAudio:t:r
-# Create Kaldi data sets in $ll
 mkdir -p $id
-cp $inAudio $id/$id.orig.wav
 
-echo "id $inAudio" > $id/wav.scp
-echo "id id" > $id/utt2spk
-cp $id/utt2spk $id/spk2utt
+if [[ $inType -eq 0 ]]; then
+    echo "$id $inAudio" > $id/wav.scp
+    echo "$id $voice" > $id/utt2spk
+    echo "$voice $id" > $id/spk2utt
+else
+    echo -n "" > $id/wav.temp.scp
+    for f in `cat $inAudio`; do
+	echo "$f:t:r $f" >> $id/wav.temp.scp
+    done
+    cat $id/wav.temp.scp | sort > $id/wav.scp
+    cat $id/wav.scp | awk -v voice=$voice '{print $1" "voice}' > $id/utt2spk
+    cat $id/utt2spk | utils/utt2spk_to_spk2utt.pl | sort > $id/spk2utt
+    rm $id/wav.temp.scp
+fi
 
 echo "-- MFCC extraction for $id input --"
 steps/make_mfcc.sh --mfcc-config conf/mfcc.conf --nj 1 --cmd "run.pl" $id $id/log $id/mfcc
@@ -47,27 +61,27 @@ feats="$feats add-deltas --delta-order=2 ark:- ark:- |"
 
 if [[ $paramType -eq 0 || $paramType -eq 2 ]]; then
     nnet-forward train/dnns/pretrain-dbn-$lang/final.feature_transform "${feats}" ark:- | \
-    nnet-forward train/dnns/${lang}-${phon}/phone-3l-dnn/final.nnet ark:- ark,scp:$id/phone.ark,$id/phonefeats.scp
+    nnet-forward train/dnns/${lang}-${phon}/phone-${hlayers}l-dnn/final.nnet ark:- ark,scp:$id/phone.ark,$id/phone.scp
 fi
 if [[ $paramType -eq 1 || $paramType -eq 2 ]]; then
     for att in "${(@k)attMap}"; do
 	nnet-forward train/dnns/pretrain-dbn-$lang/final.feature_transform "${feats}" ark:- | \
-        nnet-forward train/dnns/${lang}-${phon}/${att}-3l-dnn/final.nnet ark:- ark:- | \
+        nnet-forward train/dnns/${lang}-${phon}/${att}-${hlayers}l-dnn/final.nnet ark:- ark:- | \
         select-feats 1 ark:- ark:$id/${att}.ark
     done
 fi
 
 if [[ $paramType -eq 0 ]]; then
-    cp $id/phonefeats.scp $id/feats.scp
+    cp $id/phone.scp $id/feats.scp
 else
     for att in "${(@k)attMap}"; do
-	atts+=( ark:$id/${att}.ark )
+    	atts+=( ark:$id/${att}.ark )
     done
     paste-feats $atts ark,scp:$id/paramType1.ark,$id/phnlfeats.scp
     cp $id/phnlfeats.scp $id/feats.scp
 
     if [[ $paramType -eq 2 ]]; then
-	paste-feats scp:$id/phnlfeats.scp scp:$id/phonefeats.scp ark,scp:$id/paramType2.ark,$id/feats.scp
+	paste-feats scp:$id/phnlfeats.scp scp:$id/phone.scp ark,scp:$id/paramType2.ark,$id/feats.scp
     fi
 fi
 
