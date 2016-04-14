@@ -1,7 +1,7 @@
 Phonetic and Phonological vocoding training
 =======================================================
 
-based on Kaldi wsj/s5 training scripts
+based on Kaldi wsj/s5 and /librispeech/s5 training scripts
 dependencies: Idiap SSP, Kaldi
 
 0. Set language and phonology system, a synthesis voice db and
@@ -10,10 +10,21 @@ re-synthesis vocoder in ../Config.sh
 For example:
 export lang=English
 export phon=SPE
-export voice=Nancy
+export voice=
 export vocod=LPC
 
 ======================= ANALYSIS =======================
+
+0. LibriSpeech setup
+
+- download and unpack http://www.openslr.org/12/ and path in Config.sh
+export data=PATH_TO_LIBRISPEECH_DATA
+- download and unpack http://www.openslr.org/11/ and path in Config.sh
+export dataLM=PATH_TO_LIBRISPEECH_LEXICON
+- download https://librivox.org/anna-karenina-by-leo-tolstoy-2/,
+  convert to 16kHz wav file format, and set path in Config.sh
+export voiceData=PATH_TO_LIBRISPEECH_VOICE
+export voice=Anna
 
 1. Data preparation.  Execute the following scripts in order.
 
@@ -28,22 +39,26 @@ $ aExtract.sh
 - prepared Kaldi data is located in ../lang/$lang/data
 - and it outputs log file into ./log/make_mfcc
 
-2. Train Phonological Analysis DNNs.
+2. aAlign.sh
+
+- train LDA+MLLT+SAT system, and align the training data
+
+3. Train Phonological Analysis DNNs.
 
 $ aPretrainDNN.sh
 
-- initialise DNN training using ../lang/$lang/data/init
+- initialise DNN training using ../lang/$lang/data/dev_clean
 - the output is in dnns/pretrain-dbn-$lang
 
 $ aTrainDNNs.sh
 
-Prepare label data and train all phonological feature detectors:
+Prepare label data and train phonetic/phonological analysis DNNs
 - Kaldi label data is in ../lang/$lang/labels
 - the trained DNNs are in dnns-${lang}-${phon}
 
 ======================= SYNTHESIS  =======================
 
-3. Prepare data - synthesis is based on a particluar $voice.
+4. Prepare data - synthesis is based on a particluar $voice.
 
 $ sExtract.sh
 

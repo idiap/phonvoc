@@ -12,29 +12,12 @@ source ../Config.sh
 
 ll=../lang/$lang
 
-if [[ $lang == 'English' ]]; then
-    # Link WSJ audio in $ll
-    for d in audio/wv1 audio/wv2
-    do
-	mkdir -p $ll/$d
-	ln -sf $wsj0/$d/wsj0 $ll/$d/wsj0
-	ln -sf $wsj1/$d/wsj1 $ll/$d/wsj1
-    done
-
-    # Create Kaldi data sets in $ll
-    for n in init train dev; do
-	echo $n
-	mkdir -p $ll/data/${n}
-	cat $ll/${n}.list.txt | awk -v ll=$ll '{ n=split($1,a,"/"); split(a[n],b,"."); print b[1]" "ll"/audio/wv1/"$0".wav" }' > $ll/data/${n}/files
-	cat $ll/data/${n}/files | sort -u > $ll/data/${n}/wav.scp
-	cat $ll/data/${n}/wav.scp | awk '{spk=substr($1,1,3); print $1" "spk}' > $ll/data/${n}/utt2spk
-	cat $ll/data/${n}/utt2spk | utils/utt2spk_to_spk2utt.pl | sort > $ll/data/${n}/spk2utt
-    done
-fi
-
-for n in train dev; do
-    echo "-- Feature extraction for ${n} set --"
-    mfccdir=feats/mfcc_${n}
-    steps/make_mfcc.sh --mfcc-config ../conf/mfcc.conf --nj $N_JOBS --cmd "$extract_cmd" $ll/data/${n} $ll/data/${n}/log ${mfccdir}
-    steps/compute_cmvn_stats.sh $ll/data/$n log/make_mfcc/$n $mfccdir || exit 1;
+for n in dev-clean dev-other train-clean-100 train-clean-360 train-other-500; do
+    dname=`echo $n | sed s/-/_/g`
+    echo "-- Data preparation for $dname set --"
+    local/data_prep.sh $data/$n $ll/data/$dname || exit 1
+    echo "-- Feature extraction for $dname set --"
+    mfccdir=feats/mfcc_$dname
+    steps/make_mfcc.sh --mfcc-config ../conf/mfcc.conf --nj $N_JOBS --cmd "$extract_cmd" $ll/data/$dname $ll/data/$dname/log $mfccdir
+    steps/compute_cmvn_stats.sh $ll/data/$dname log/make_mfcc/$dname $mfccdir || exit 1;
 done
