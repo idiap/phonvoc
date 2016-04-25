@@ -62,7 +62,7 @@ if [[ $paramType -eq 0 || $paramType -eq 2 ]]; then
 	    feats="$feats add-deltas --delta-order=2 ark:- ark:- |"
 qsub $geOpts << EOF    
     nnet-forward dnns/pretrain-dbn-$lang/final.feature_transform "${feats}" ark:- | \
-    nnet-forward dnns/${lang}-${phon}/phone-3l-dnn/final.nnet ark:- ark,scp:$ifeatdir/phone.ark,$ifeatdir/phonefeats.scp
+    nnet-forward dnns/${lang}-${phon}/phone-${hlayers}l-dnn/final.nnet ark:- ark,scp:$ifeatdir/phone.$n.ark,$ifeatdir/phonetic.$n.scp
 EOF
 	done
 fi
@@ -70,7 +70,7 @@ if [[ $paramType -eq 1 || $paramType -eq 2 ]]; then
     for att in "${(@k)attMap}"; do
 qsub $geOpts << EOF    
 	nnet-forward dnns/pretrain-dbn-$lang/final.feature_transform "${feats}" ark:- | \
-        nnet-forward dnns/${lang}-${phon}/${att}-3l-dnn/final.nnet ark:- ark:- | \
+        nnet-forward dnns/${lang}-${phon}/${att}-${hlayers}l-dnn/final.nnet ark:- ark:- | \
         select-feats 1 ark:- ark:$ifeatdir/${att}.ark
 EOF
     done
@@ -88,24 +88,30 @@ done
 # 4. Merging
 
 if [[ $paramType -eq 0 ]]; then
-    cp $ifeatdir/phonefeats.scp $ifeatdir/feats.scp
-else
+    echo -n > $ifeatdir/feats.scp
+    for n in $(seq $N_JOBS); do
+	cat $ifeatdir/phonetic.$n.scp >> $ifeatdir/feats.scp
+    done
+    cp $ifeatdir/feats.scp $ifeatdir/phonetic.scp
+fi
+if [[ $paramType -gt 0 ]]; then
     for att in "${(@k)attMap}"; do
-	atts+=( ark:$ifeatdir/${att}.ark )
+    	atts+=( ark:$ifeatdir/${att}.ark )
     done
     paste-feats $atts ark,scp:$ifeatdir/paramType1.ark,$ifeatdir/phnlfeats.scp
     cp $ifeatdir/phnlfeats.scp $ifeatdir/feats.scp
 
     if [[ $paramType -eq 2 ]]; then
-	paste-feats scp:$ifeatdir/phnlfeats.scp scp:$ifeatdir/phonefeats.scp ark,scp:$ifeatdir/paramType2.ark,$ifeatdir/feats.scp
+	paste-feats scp:$ifeatdir/phnlfeats.scp scp:$ifeatdir/phonetic.scp ark,scp:$ifeatdir/paramType2.ark,$ifeatdir/feats.scp
     fi
 fi
 
-echo -n "nan" > $ifeatdir/spk2utt
+echo -n "$voice" > $ifeatdir/spk2utt
 cat $ifeatdir/feats.scp | awk '{ printf " %s", $1}END{print ""}' >> $ifeatdir/spk2utt
 utils/spk2utt_to_utt2spk.pl $ifeatdir/spk2utt > $ifeatdir/utt2spk
 steps/compute_cmvn_stats.sh $ifeatdir $ifeatdir $ifeatdir || exit 1;
 
-# 5. Chunks the training data
+# # 5. Chunks the training data
 
-# copy-feats ark:$ifeatdir/attributes.ark ark,t:- | awk 'BEGIN{l=0;j=0;}{if(match($1,"^s")){a=$1; printf "%s-%03d [ ", a, j; j++} else { print; if (++l % 625 == 0) {printf "]\n%s-%03d [ ", a, j; j++} if (match($0,"]$")){j=0;l=0}} }' | copy-feats ark,t:- ark,scp:$ifeatdir/katt.ark,$ifeatdir/feats.scp
+cp $ifeatdir/feats.scp $ifeatdir/feats-original.scp # if(match($1,"^a"))
+copy-feats scp:$ifeatdir/feats-original.scp ark,t:- | awk 'BEGIN{l=0;j=0;}{if($2 == "["){a=$1; printf "%s-%03d [ ", a, j; j++} else { print; if (++l % 3000 == 0) {printf "]\n%s-%03d [ ", a, j; j++} if (match($0,"]$")){j=0;l=0}} }' | copy-feats ark,t:- ark,scp:$ifeatdir/chunked.ark,$ifeatdir/feats.scp

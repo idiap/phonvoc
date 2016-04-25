@@ -11,22 +11,21 @@ echo Script: $0
 source ../Config.sh
 
 ll=../lang/$lang
-if [[ $voice == "Nancy" ]]; then
-    nancyDir=/idiap/temp/alaza/ImprovedLabels_Hui/lib/blizzard2011
-    audio=$nancyDir/wavs
-    datad=$ll/data/$voice
-    cat $nancyDir/prompts.data_v2 | \
-	awk -v audio=$audio '{print $1" "audio"/"$1".wav" }' > $datad/wav.scp
-elif [[ $voice == "siwis" ]]; then
-    siwisDir=/idiap/project/siwis/Siwis.04.09.2015
-    find /idiap/project/siwis/Siwis.04.09.2015/FR/ -name "*.wav"
-fi
-
+datad=$ll/data/$voice
 if [[ ! -e $datad ]]; then
     mkdir -p $datad
 fi
 
-cat $datad/wav.scp | awk '{print $1" nan"}' > $datad/utt2spk
+echo -n "" > $datad/wav.scp
+if [[ -d $voiceData ]]; then
+    find $voiceData -name "*.wav"  | \
+	awk -F "/" '{ split($NF,a,"."); print a[1]" "$0 }' | sort > $datad/wav.scp
+    cat $datad/wav.scp | awk -v voice=$voice '{print $1" "voice}' | sort > $datad/utt2spk
+else
+    echo "Synthesis training data does not exist"
+    exit
+fi
+
 cat $datad/utt2spk | utils/utt2spk_to_spk2utt.pl | sort > $datad/spk2utt
 
 echo "-- Feature extraction for $datad set --"

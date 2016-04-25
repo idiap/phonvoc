@@ -23,3 +23,4 @@ ln -sf $feats feats
 echo Linking Kaldi: $KALDI_ROOT/egs/wsj/s5
 ln -sf $KALDI_ROOT/egs/wsj/s5/steps steps
 ln -sf $KALDI_ROOT/egs/wsj/s5/utils utils
+ln -sf $KALDI_ROOT/egs/librispeech/s5/local local

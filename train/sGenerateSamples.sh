@@ -9,8 +9,8 @@
 source ../Config.sh
 
 # vocod=cepgm-blaise
-dbn=dnns/dbn-${lang}-${voice}-${phon}-paramType$paramType
-dnn=dnns/${hlayers}-${hdim}-${lrate}-${lang}-${voice}-${vocod}-paramType$paramType
+dbn=dnns/dbn-${lang}-${phon}-${voice}-paramType$paramType
+dnn=dnns/${hlayers}-${hdim}-${lrate}-${lang}-${voice}-${phon}-${vocod}-paramType$paramType
 
 tst=../lang/$lang/data/$voice/itest
 otst=enc/${lang}-${phon}-${voice}-$vocod-paramType$paramType
@@ -34,17 +34,20 @@ mkdir -p $htkDir
 #     -o $geLogDir
 # )
 
-if [ 0 ]; then
+# if true; then
+if false; then
     echo "re-synthesis only"
-    otst=enc/${lang}-${phon}-${voice}-$vocod-resynthesis
+    otst=enc/${lang}-${voice}-$vocod-resynthesis-20ms
     if [[ ! -d $otst ]]; then
 	mkdir $otst
     fi
     while read l; do
 	id=`echo $l | awk '{print $1}'`
 	echo $id
-	htk=feats/out-${lang}-${phon}-${voice}-cepgm/$id.htk
-	$SSP_ROOT/codec.py -d -a -l -m 160 -s 'cepgm' $htk $otst/$id.wav
+	htk=feats/out-${lang}-${voice}-cepgm/$id.htk
+	# $SSP_ROOT/codec.py -d -a -l -m 160 -s 'cepgm' $htk $otst/$id.wav
+	# $SSP_ROOT/codec.py -d -a -l -m 256 -s 'cepgm' $htk $otst/$id.wav
+	$SSP_ROOT/codec.py -d -a -l -m 320 -s 'cepgm' $htk $otst/$id.wav
     done < $tst/feats.scp
     exit
 fi
@@ -79,13 +82,13 @@ for f in `find $otst/lsf -name "*.lsf"`; do
   htk=$htkDir/$f:t:r.htk
   pitch=$htkDir/$f:t:r.f0
   wav=$htkDir/$f:t:r.wav
-  wav8k=$htkDir/$f:t:r.8k.wav
+  # wav8k=$htkDir/$f:t:r.8k.wav
 
   # echo "toHTK.py $f $htk $hnr $pitch"
   toHTK.py $f $htk $hnr $pitch
   # SSP -s 'cepgm' with original pitch
   # origPitch=train/feats/out-${lang}-${phon}-${voice}-${vocod}/$f:t:r.f0
-  origPitch=feats/out-${lang}-${phon}-${voice}-cepgm/$f:t:r.f0
+  origPitch=feats/out-${lang}-${voice}-${vocod}/$f:t:r.f0
   hnrNum=`cat $hnr | wc -l`
   f0Num=`cat $origPitch | wc -l`
   (( f0Diff = hnrNum - f0Num ))
@@ -102,6 +105,8 @@ for f in `find $otst/lsf -name "*.lsf"`; do
   fi
   # qsub $geOpts -s 'cepgm'
   $SSP_ROOT/codec.py -d -a -l -m 160 -s 'cepgm' $htk $wav
+  # $SSP_ROOT/codec.py -d -a -l -m 256 -s 'cepgm' $htk $wav
+  # $SSP_ROOT/codec.py -d -a -l -m 320 -s 'cepgm' $htk $wav
   # sox $wav -r 8k $wav8k
   rm $htk $hnr $pitch
 
