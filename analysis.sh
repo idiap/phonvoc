@@ -59,12 +59,14 @@ feats="ark:copy-feats scp:$id/feats.scp ark:- |"
 feats="$feats apply-cmvn --norm-vars=false --utt2spk=ark:$id/utt2spk scp:$id/cmvn.scp ark:- ark:- |"
 feats="$feats add-deltas --delta-order=2 ark:- ark:- |"
 
+echo "-- Parameter extraction for paramType $paramType --"
 if [[ $paramType -eq 0 || $paramType -eq 2 ]]; then
     nnet-forward train/dnns/pretrain-dbn-$lang/final.feature_transform "${feats}" ark:- | \
     nnet-forward train/dnns/${lang}-${phon}/phone-${hlayers}l-dnn/final.nnet ark:- ark,scp:$id/phone.ark,$id/phone.scp
 fi
 if [[ $paramType -eq 1 || $paramType -eq 2 ]]; then
     for att in "${(@k)attMap}"; do
+	echo $att
 	nnet-forward train/dnns/pretrain-dbn-$lang/final.feature_transform "${feats}" ark:- | \
         nnet-forward train/dnns/${lang}-${phon}/${att}-${hlayers}l-dnn/final.nnet ark:- ark:- | \
         select-feats 1 ark:- ark:$id/${att}.ark
@@ -85,3 +87,16 @@ else
     fi
 fi
 
+# TO BINARY
+# count phonological classes
+c=0
+for att in "${(@k)attMap}"; do
+    (( c = c + 1 ))
+    echo $att $c
+done
+(( ce = c + 1 ))
+# exit
+cp $id/feats.scp $id/feats.continuous.scp
+copy-feats scp:$id/feats.continuous.scp ark,t:- | \
+    awk -v PHC=$c -v PHCE=$ce '{if (NF>2) {for(i=1; i<=PHC; i++) {printf "%1.0f ", $i} if ($PHCE != "") print $PHCE; else printf "\n"} else print $0}' | \
+    copy-feats ark,t:- ark,scp:$id/feats.binary.ark,$id/feats.binary.scp
