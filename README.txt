@@ -22,12 +22,12 @@ export vocod=cepgm  # Idiap LPC vocoder with cepgm
 - this runs MFCC extraction and DNNs forward pass
 - feature posteriors are prepared in recording/feats.scp
 
-======================= SYNTHESIS  =======================
+======================= SYNTHESIS  !!! obsolete, have to retrain !!!
 
 2. synthesis.sh recording
 
 - takes the feature posteriors and re-synthesize speech
-- re-synthesized speech is in  nancy_11001/nancy_11001.wav
+- re-synthesized speech is in  recording/recording.wav
 
 ======================= EVALUATION  ======================
 
@@ -44,7 +44,7 @@ export vocod=cepgm  # Idiap LPC vocoder with cepgm
 
 
 More technical details are available in:
-- Milos Cernak and Philip N. Garner,PhonVoc: A Phonetic and
+- Milos Cernak and Philip N. Garner, PhonVoc: A Phonetic and
 Phonological Vocoding Toolkit. In: Proceedings of Interspeech,
 San Francisco, USA, 2016
 - Milos Cernak, Blaise Potard and Philip N. Garner, Phonological
