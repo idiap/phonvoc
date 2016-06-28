@@ -44,15 +44,14 @@ export vocod=cepgm  # Idiap LPC vocoder with cepgm
 
 
 More technical details are available in:
+- Milos Cernak and Philip N. Garner,PhonVoc: A Phonetic and
+Phonological Vocoding Toolkit. In: Proceedings of Interspeech,
+San Francisco, USA, 2016
 - Milos Cernak, Blaise Potard and Philip N. Garner, Phonological
-Vocoding Using Artificial Neural Networks . In: Proceedings of the
+Vocoding Using Artificial Neural Networks. In: Proceedings of the
 IEEE Intl. Conference on Acoustics, Speech and Signal Processing
 (ICASSP). Brisbane, Australia, 2015
 The functionality is covered also by
-- Afsaneh Asaei, Milos Cernak, Hervé Bourlard, Signal processing
-method and apparatus based on structured sparsity of phonological
-features. US Patent Application US2015846036 (14/846,036), Sep. 4,
-2015.
 
 ==
-Milos Cernak, March 2016
+Milos Cernak, June 2016
