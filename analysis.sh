@@ -34,6 +34,18 @@ source lang/$lang/${phon}-map.sh
 id=$inAudio:t:r
 mkdir -p $id
 
+geOpts=(
+    -r y # Restart the job if the execution host crashes
+    # -b y # Pass a path, not a script, to the execution host
+    -cwd # Retain working directory
+    -V   # Retain environment variables
+    # -S /usr/bin/python2
+    -e $id/log
+    -o $id/log
+    # -l q1d
+    -l h_vmem=4G
+)
+
 if [[ $inType -eq 0 ]]; then
     echo "$id $inAudio" > $id/wav.scp
     echo "$id $voice" > $id/utt2spk
@@ -48,6 +60,7 @@ else
     cat $id/utt2spk | utils/utt2spk_to_spk2utt.pl | sort > $id/spk2utt
     rm $id/wav.temp.scp
 fi
+# exit
 
 echo "-- MFCC extraction for $id input --"
 steps/make_mfcc.sh --mfcc-config conf/mfcc.conf --nj 1 --cmd "run.pl" $id $id/log $id/mfcc
@@ -67,9 +80,28 @@ fi
 if [[ $paramType -eq 1 || $paramType -eq 2 ]]; then
     for att in "${(@k)attMap}"; do
 	echo $att
+	if [[ $USE_SGE == 1 ]]; then
+qsub $geOpts << EOF        
 	nnet-forward train/dnns/pretrain-dbn-$lang/final.feature_transform "${feats}" ark:- | \
         nnet-forward train/dnns/${lang}-${phon}/${att}-${hlayers}l-dnn/final.nnet ark:- ark:- | \
         select-feats 1 ark:- ark:$id/${att}.ark
+EOF
+	else
+	    nnet-forward train/dnns/pretrain-dbn-$lang/final.feature_transform "${feats}" ark:- | \
+		nnet-forward train/dnns/${lang}-${phon}/${att}-${hlayers}l-dnn/final.nnet ark:- ark:- | \
+		select-feats 1 ark:- ark:$id/${att}.ark
+	fi
+    done
+fi
+
+if [[ $USE_SGE == 1 ]]; then
+    while true; do
+	sleep 10
+	njobs=`qstat | grep STDIN | wc -l`
+	echo "$njobs detectors running"
+	if [[ $njobs ==  0 ]]; then
+	    break
+	fi
     done
 fi
 
@@ -87,6 +119,7 @@ else
     fi
 fi
 
+exit
 # TO BINARY
 # count phonological classes
 c=0
@@ -95,7 +128,6 @@ for att in "${(@k)attMap}"; do
     echo $att $c
 done
 (( ce = c + 1 ))
-# exit
 cp $id/feats.scp $id/feats.continuous.scp
 copy-feats scp:$id/feats.continuous.scp ark,t:- | \
     awk -v PHC=$c -v PHCE=$ce '{if (NF>2) {for(i=1; i<=PHC; i++) {printf "%1.0f ", $i} if ($PHCE != "") print $PHCE; else printf "\n"} else print $0}' | \

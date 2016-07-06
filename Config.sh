@@ -57,6 +57,7 @@ export PATH=$PWD/utils/:$PWD:$PATH
 export LC_ALL=C
 
 export N_JOBS=60
+export USE_SGE=0
 
 ################################################################
 ### PHONVOC SETTINGS ###
@@ -71,11 +72,15 @@ export phon=SPE
 ## English  - LibriSpeech db
 ## French   - Ester db
 ## Mandarin - Emime db
+# export lang=French
 export lang=English
 
 # synthesis voice
 ## English - Anna voice (~36h LibriVox female voice)
 export voice=Anna
+# export voice=Nancy
+# export voice=siwis
+# export voice=Nancy
 
 # Re-synthesis vocoder
 ## LPC     - Idiap open source LPC
@@ -91,4 +96,4 @@ export hdim=1024
 # phonetic        | 0
 # phonological    | 1
 # phonetic+phonol.| 2
-export paramType=2
+export paramType=1
