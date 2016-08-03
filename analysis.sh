@@ -12,6 +12,7 @@ source Config.sh
 
 inAudio=$1
 inType=$2
+hlayers=4
 
 if [[ -z $inAudio ]]; then
     echo "PhonVoc analysis: input audio not provided!"
@@ -65,6 +66,7 @@ fi
 echo "-- MFCC extraction for $id input --"
 steps/make_mfcc.sh --mfcc-config conf/mfcc.conf --nj 1 --cmd "run.pl" $id $id/log $id/mfcc
 steps/compute_cmvn_stats.sh $id $id/log $id/mfcc || exit 1;
+# exit
 
 echo "-- Feature extraction for $id input --"
 feats="ark:copy-feats scp:$id/feats.scp ark:- |"
@@ -74,8 +76,10 @@ feats="$feats add-deltas --delta-order=2 ark:- ark:- |"
 
 echo "-- Parameter extraction for paramType $paramType --"
 if [[ $paramType -eq 0 || $paramType -eq 2 ]]; then
+qsub $geOpts << EOF        
     nnet-forward train/dnns/pretrain-dbn-$lang/final.feature_transform "${feats}" ark:- | \
     nnet-forward train/dnns/${lang}-${phon}/phone-${hlayers}l-dnn/final.nnet ark:- ark,scp:$id/phone.ark,$id/phone.scp
+EOF
 fi
 if [[ $paramType -eq 1 || $paramType -eq 2 ]]; then
     for att in "${(@k)attMap}"; do

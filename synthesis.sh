@@ -12,6 +12,7 @@ source Config.sh
 
 inDir=$1
 inType=$2
+hlayers=4
 
 if [[ ! -e $inDir/feats.scp ]]; then
     echo "PhonVoc analysis: $inDir/feats.scp file does not exist!"
@@ -23,7 +24,6 @@ fi
 
 if [[ ! -d steps ]]; then ln -sf $KALDI_ROOT/egs/wsj/s5/steps steps; fi
 if [[ ! -d utils ]]; then ln -sf $KALDI_ROOT/egs/wsj/s5/utils utils; fi
-
 ift=train/dnns/dbn-${lang}-${phon}-${voice}-paramType$paramType/final.feature_transform
 infeats_tst="ark:nnet-forward $ift scp:$inDir/feats.scp ark:- |"
 dnn=train/dnns/${hlayers}-${hdim}-${lrate}-${lang}-${voice}-${phon}-${vocod}-paramType$paramType
@@ -44,8 +44,8 @@ fi
 
 if [ -e $dnn/cmvn_out_glob.ark ]; then
     echo "using $dnn/cmvn_out_glob.ark"
-    cmvn-to-nnet --binary=false $dnn/cmvn_out_glob.ark - | \
-	train/convert_transform.sh > $dnn/reverse_cmvn_out_glob.nnet
+    # cmvn-to-nnet --binary=false $dnn/cmvn_out_glob.ark - | \
+    # 	train/convert_transform.sh > $dnn/reverse_cmvn_out_glob.nnet
     nnet-forward --no-softmax=true $dnn/final.nnet "${infeats_tst}" ark,t:- | \
 	nnet-forward --no-softmax=true $dnn/reverse_cmvn_out_glob.nnet ark:- ark,t:- | \
 	awk -v dir=$inDir/ '($2 == "["){if (out) close(out); out=dir $1 ".lsf";}($2 != "["){if ($NF == "]") $NF=""; print $0 > out}'
@@ -67,6 +67,7 @@ for f in $files; do
     train/toHTK.py $inDir/$f.lsf $inDir/$f.htk $inDir/$f.hnr $inDir/$f.f0
     # rewrite synthesized pitch with the original one
     $SSP_ROOT/codec.py -p -a -m 160 $wavs[$f] $inDir/$f.f0
+    # cp train/feats/out-English-Nancy-cepgm/$f.f0 $inDir/$f.orig.f0
     train/toLog.py $inDir/$f.f0 > $inDir/$f.orig.f0
     hnrNum=`cat $inDir/$f.hnr | wc -l`
     f0Num=`cat $inDir/$f.orig.f0 | wc -l`
