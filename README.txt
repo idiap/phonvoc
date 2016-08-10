@@ -42,6 +42,10 @@ export vocod=cepgm  # Idiap LPC vocoder with cepgm
 
 - runs analysis, synthesis and evaluation of the input audio
 
+=========== VERY LOW BIT RATE CODING PROTOTYPE ===========
+
+- follow ./vlbr/README.txt
+
 
 More technical details are available in:
 - Milos Cernak and Philip N. Garner, PhonVoc: A Phonetic and
@@ -51,7 +55,7 @@ San Francisco, USA, 2016
 Vocoding Using Artificial Neural Networks. In: Proceedings of the
 IEEE Intl. Conference on Acoustics, Speech and Signal Processing
 (ICASSP). Brisbane, Australia, 2015
-The functionality is covered also by
+
 
 ==
-Milos Cernak, June 2016
+Milos Cernak, August 2016
