@@ -2,9 +2,9 @@ PhonNet: Neural Network Based Speech Coder
 =======================================================
 
 This is a prototype of a neural network based speech coder, released
-under the BSD licence. See file COPYING for details. The software is
-based on Kaldi and Idiap SSP. For training of the analysis and
-synthesis neural network models, follow please PhonVoc train recipes.
+under the BSD licence. The software is based on Kaldi and Idiap
+SSP. For training of the analysis and synthesis neural network models,
+follow please PhonVoc train recipes.
 
 The build system is based on CMake. To build, you should only need to
 do the following:
