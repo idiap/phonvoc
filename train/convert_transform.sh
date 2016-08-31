@@ -9,6 +9,7 @@ awk 'BEGIN{
    if ($1 ~ /<Splice>/){mode[ntrans] = 1;}
    else if ($1 ~ /<Nnet>/){ntrans--; w = 0}
    else if ($1 ~ "</Nnet>"){ntrans--; w = 0}
+   else if ($1 ~ "<!EndOfComponent>"){ntrans--; w = 0}
    else if ($1 ~ "<LearnRateCoef>"){ntrans--; w = 1}
    else if ($1 ~ /<AddShift>/){mode[ntrans] = 2;}
    else if ($1 ~ /<Rescale>/){mode[ntrans] = 3;}
@@ -34,12 +35,14 @@ for (i = ntrans; i >= 1; i--) {
       printf "<LearnRateCoef> 0 [";
       for (j = 4; j <= l - 1; j++) printf " %f", 0.0 - v[j];
       printf " ]\n";
+      printf "<!EndOfComponent>\n";
    }
    else if (mode[i] == 3) {
       printf "<Rescale> %d %d\n", dimOut[i], dimIn[i];
       printf "<LearnRateCoef> 0 [";
       for (j = 4; j <= l - 1; j++) printf " %f", 1.0 / v[j];
       printf " ]\n";
+      printf "<!EndOfComponent>\n";
    }
 }
 printf "</Nnet>\n"

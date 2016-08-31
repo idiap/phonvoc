@@ -22,7 +22,7 @@ export vocod=cepgm  # Idiap LPC vocoder with cepgm
 - this runs MFCC extraction and DNNs forward pass
 - feature posteriors are prepared in recording/feats.scp
 
-======================= SYNTHESIS  !!! obsolete, have to retrain !!!
+======================= SYNTHESIS ========================
 
 2. synthesis.sh recording
 
