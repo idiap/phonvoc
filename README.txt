@@ -3,8 +3,9 @@ PhonVoc: Phonetic and Phonological vocoding
 
 This is a computational platform for Phonetic and Phonological
 vocoding, released under the BSD licence. See file COPYING for
-details. The software is based on Kaldi and Idiap SSP. For training of
-the analysis and synthesis models, follow please train/README.txt. 
+details. The software is based on Kaldi (v. 489a1f5) and Idiap SSP.
+For training of the analysis and synthesis models, follow please 
+train/README.txt. 
 
 For analysis and synthesis with the pre-trained models, set first
 language and phonology systems, a synthesis voice and re-synthesis
