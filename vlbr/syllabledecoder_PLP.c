@@ -232,8 +232,8 @@ int main(int argc, char *argv[]) {
 	    }
 	    fseek(fp, 0, SEEK_END);
 	    size = ftell(fp);
-	    plpdata = (float *) malloc(sizeof(float)*nchan*nSamples); // PLP features
-	    chan = (double *) malloc(sizeof(double)*nchan*nSamples);
+	    plpdata = (float *) malloc(sizeof(float)*nchan*size); // PLP features
+	    chan = (double *) malloc(sizeof(double)*nchan*size);
 
 	    fseek(fp, 0, SEEK_SET);
 	    fread(&nSamples,4,1,fp);
