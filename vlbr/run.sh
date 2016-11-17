@@ -159,6 +159,7 @@ else
     echo "orig pitch align: adding $f0Diff f0 frames"
     cp $id/$id.qdec.lf0 $id/$id.f0
     lastPitch=`cat $id/$id.qdec.lf0 | tail -n 1`
+    ((f0Diff = f0Diff - 4)) #jiangkid's fix
     for d ({1..$f0Diff}); do
     	echo $lastPitch >> $id/$id.f0
     done 
