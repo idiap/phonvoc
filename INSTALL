@@ -5,7 +5,7 @@ https://github.com/idiap/ssp
 https://github.com/kaldi-asr/kaldi
 
 Please install both repositories, and set your local paths at the
-beginning of the Config.sh.
+beginning of the Config.sh (lines 12 and 13).
 
 Phonvoc is a collection of bash and zsh scripts with pre-trained
 models, no further installation is needed.

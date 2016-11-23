@@ -8,23 +8,14 @@
 #
 
 # ------- UPDATE THESE PATHS TO FIT YOUR ENVIRONMENT ------ !!!
-# Allow setshell
-software=/idiap/resource/software
-source $software/initfiles/shrc $software
+# SSP and Kaldi paths
+export SSP_ROOT=path-to-SSP
+export KALDI_ROOT=path-to-Kaldi
 
-# SETSHELLs; replace it with your local
-# export KALDI_ROOT=
-export SSP_ROOT=/idiap/user/mcernak/Projects/ssp
-export PESQ_ROOT=/idiap/home/mcernak/local/bin
-SETSHELL grid
-SETSHELL kaldi-gpu
-# some speech common libraries
-. /idiap/group/speech/common/lib/profile.sh
-
-# English training data - update the paths to fit your environment
-export data=/idiap/resource/database/LibriSpeech
+# Optional (required only for training): English training data
+export data=path-to-LibriSpeech
 export dataLM=$data/resource
-export voiceData=/idiap/temp/alaza/SIWIS_temp/Databases/LibriVox/English-US/annakarenina_mas_1202_librivox/wav
+export voiceData=path-to-annakarenina_mas_1202_librivox/wav
 # ------- UPDATE THESE PATHS TO FIT YOUR ENVIRONMENT ------ !!!
 
 # Check for KALDI; add it to the path
@@ -76,15 +67,12 @@ export phon=SPE
 export lang=English
 
 # synthesis voice
-## English - Anna voice (~36h LibriVox female voice)
+# English - Anna voice (~36h LibriVox female voice)
 export voice=Anna
-# export voice=Nancy
 # export voice=siwis
 # export voice=Nancy
 
 # Re-synthesis vocoder
-## LPC     - Idiap open source LPC
-## AHO     -
 # export vocod=LPC
 export vocod=cepgm
 # training parameters
