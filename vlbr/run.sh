@@ -151,16 +151,19 @@ echo "-- Phonological synthesis (LPC re-synthesis) --"
 ../train/toHTK.py $id/$id.lsf $id/$id.htk $id/$id.hnr $id/$id.synth.f0
 hnrNum=`cat $id/$id.hnr | wc -l`
 f0Num=`cat $id/$id.qdec.lf0 | wc -l`
-(( f0Diff = hnrNum - f0Num + 4 ))
-if [[ $f0Diff -le 0 ]]; then
+(( f0Diff = f0Num - hnrNum))
+echo "lf0:$f0Num; hnr:$hnrNum; Diff:$f0Diff"
+if [[ $f0Diff -ge 4 ]]; then
     echo "orig pitch align: removing $f0Diff f0 frames"
     cat $id/$id.qdec.lf0 | tail -n +4 | head -n $hnrNum > $id/$id.f0
+elif [[ $f0Diff -ge 0 ]]; then
+    echo "else: orig pitch align: removing $f0Diff f0 frames"
+    cat $id/$id.qdec.lf0 | head -n $hnrNum > $id/$id.f0
 else
     echo "orig pitch align: adding $f0Diff f0 frames"
     cp $id/$id.qdec.lf0 $id/$id.f0
     lastPitch=`cat $id/$id.qdec.lf0 | tail -n 1`
-    ((f0Diff = f0Diff - 4)) #jiangkid's fix
-    for d ({1..$f0Diff}); do
+    for ((i=$f0Diff; i<0; i=i+1));do
     	echo $lastPitch >> $id/$id.f0
     done 
 fi
